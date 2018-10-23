@@ -22,7 +22,7 @@ import telran.forum.dao.UserAccountRepository;
 import telran.forum.domain.UserAccount;
 
 @Service
-@Order(2)
+@Order(3)
 public class UserAccountFilter implements Filter {
 
 	@Autowired

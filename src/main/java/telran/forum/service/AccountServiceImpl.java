@@ -29,17 +29,11 @@ public class AccountServiceImpl implements AccountService {
 			throw new UserExistException();
 		}
 		String hashPassword = BCrypt.hashpw(credentials.getPassword(), BCrypt.gensalt());
-		UserAccount userAccount = UserAccount.builder()
-				.id(credentials.getLogin())
-				.password(hashPassword)
-				.firstName(userRegDto.getFirstName())
-				.lastName(userRegDto.getLastName())
-				.role("User")
-				.expDate(LocalDateTime.now().plusDays(accountConfiguration.getExpPeriod()))
-				.build();
+		UserAccount userAccount = UserAccount.builder().id(credentials.getLogin()).password(hashPassword)
+				.firstName(userRegDto.getFirstName()).lastName(userRegDto.getLastName()).role("User")
+				.expDate(LocalDateTime.now().plusDays(accountConfiguration.getExpPeriod())).build();
 		userRepository.save(userAccount);
-		return new UserProfileDto(credentials.getLogin(),
-				userRegDto.getFirstName(), userRegDto.getLastName());
+		return new UserProfileDto(credentials.getLogin(), userRegDto.getFirstName(), userRegDto.getLastName());
 	}
 
 	@Override
@@ -49,8 +43,7 @@ public class AccountServiceImpl implements AccountService {
 		userAccount.setFirstName(userRegDto.getFirstName());
 		userAccount.setLastName(userRegDto.getLastName());
 		userRepository.save(userAccount);
-		return new UserProfileDto(credentials.getLogin(),
-				userRegDto.getFirstName(), userRegDto.getLastName());
+		return new UserProfileDto(credentials.getLogin(), userRegDto.getFirstName(), userRegDto.getLastName());
 	}
 
 	@Override
@@ -58,15 +51,35 @@ public class AccountServiceImpl implements AccountService {
 		AccountUserCredential credentials = accountConfiguration.tokenDecode(auth);
 		UserAccount user = userRepository.findById(credentials.getLogin()).get();
 		Set<String> roles = user.getRoles();
-		boolean hasRight = roles.stream()
-				.anyMatch(s -> "Admin".equals(s) || "Moderator".equals(s));
+		boolean hasRight = roles.stream().anyMatch(s -> "Admin".equals(s) || "Moderator".equals(s));
 		hasRight = hasRight || credentials.getLogin().equals(id);
-		if(!hasRight) {
+		if (!hasRight) {
 			throw new ForbiddenException();
 		}
 		UserAccount userAccount = userRepository.findById(id).get();
 		userRepository.delete(userAccount);
 		return new UserProfileDto(userAccount.getId(), userAccount.getFirstName(), userAccount.getLastName());
+	}
+
+	@Override
+	public boolean addRole(String id, String auth) {
+		AccountUserCredential credentials = accountConfiguration.tokenDecode(auth);
+		UserAccount user = userRepository.findById(credentials.getLogin()).orElse(null);
+		if (user != null) {
+			if (!user.getRoles().contains("Admin")) {
+				throw new ForbiddenException();
+			}
+		}
+
+		UserAccount user1 = userRepository.findById(id).orElse(null);
+
+		if (user1 != null) {
+			boolean res = user1.getRoles().add("Moderator");
+			userRepository.save(user1);
+			return res;
+		}
+
+		return false;
 	}
 
 }

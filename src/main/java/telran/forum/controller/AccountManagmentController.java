@@ -19,23 +19,29 @@ import telran.forum.service.AccountService;
 public class AccountManagmentController {
 	@Autowired
 	AccountService accountService;
-	
+
 	@PostMapping("/register")
 	public UserProfileDto register(@RequestBody UserRegisterDto userRegisterDto,
 			@RequestHeader(value = "Authorization") String auth) {
 		return accountService.addUser(userRegisterDto, auth);
 	}
-	
+    
 	@PutMapping
-	public UserProfileDto edit(@RequestBody UserRegisterDto userRegisterDto, 
+	public UserProfileDto edit(@RequestBody UserRegisterDto userRegisterDto,
 			@RequestHeader(value = "Authorization") String auth) {
 		return accountService.editUser(userRegisterDto, auth);
 	}
-	
+
 	@DeleteMapping("/{id}")
-	public UserProfileDto remove(@PathVariable String id, 
-			@RequestHeader(value = "Authorization") String auth) {
-		return accountService.removeUser(id,auth);
+	public UserProfileDto remove(@PathVariable String id, @RequestHeader(value = "Authorization") String auth) {
+		return accountService.removeUser(id, auth);
+	}
+
+	@PutMapping("/{id}")
+	public boolean assignModerator(@PathVariable String id, @RequestHeader(value = "Authorization") String auth) {
+		
+		return accountService.addRole(id, auth);
+
 	}
 
 }

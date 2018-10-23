@@ -11,4 +11,6 @@ public interface AccountService {
 
 	public UserProfileDto removeUser(String id, String auth);
 
+	public boolean addRole(String id, String auth);
+
 }
