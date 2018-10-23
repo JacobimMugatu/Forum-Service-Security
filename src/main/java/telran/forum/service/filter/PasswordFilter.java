@@ -41,16 +41,16 @@ public class PasswordFilter implements Filter {
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) resp;
-		
+
 		AccountUserCredential credentials = configuration.tokenDecode(request.getHeader("Authorization"));
-		System.out.println(credentials.getLogin()+""+credentials.getPassword());
+
 		UserAccount user = repository.findById(credentials.getLogin()).orElse(null);
-		
+
 		if (!request.getServletPath().startsWith("/account/register")) {
-			System.out.println(user.getExpDate());
+
 			if (user == null || user.getExpDate().isBefore(LocalDateTime.now())) {
 				response.sendError(401, "Unauthorized");
-				
+
 			}
 		}
 		chain.doFilter(request, response);
