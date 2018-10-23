@@ -64,12 +64,12 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public boolean addRole(String id, String auth) {
 		AccountUserCredential credentials = accountConfiguration.tokenDecode(auth);
-		UserAccount user = userRepository.findById(credentials.getLogin()).orElse(null);
-		if (user != null) {
+		UserAccount user = userRepository.findById(credentials.getLogin()).get();
+		
 			if (!user.getRoles().contains("Admin")) {
 				throw new ForbiddenException();
 			}
-		}
+		
 
 		UserAccount user1 = userRepository.findById(id).orElse(null);
 
